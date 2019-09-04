@@ -18,13 +18,12 @@ bool loraBegin()
   return LoRa.begin(BAND);
 }
 
-void setup() {
- 
-LoRa.onReceive(onReceive);
+void loraInit(){
+  
+  LoRa.onReceive(onReceive);
   LoRa.receive();
-}
-
-
+  loraBegin();
+  }
 
 void sendMessage(String mensagem)
 {
@@ -39,13 +38,22 @@ void sendMessage(String mensagem)
 void onReceive(int packetSize) {
   // received a packet
   Serial.print("Received packet '");
-
+  String incoming = "";
   // read packet
   for (int i = 0; i < packetSize; i++) {
-    Serial.print((char)LoRa.read());
+    incoming += (char)LoRa.read();
   }
+  
+  char pay[100];
+  String(incoming).toCharArray(pay, 100);
+  char *InfoPay[2];
+  InfoPay[0] = strtok(pay, "?");
+  InfoPay[1] = strtok(NULL, "?");
 
-  // print RSSI of packet
-  Serial.print("' with RSSI ");
-  Serial.println(LoRa.packetRssi());
+  if (String(InfoPay[0]) != localAddress)
+  {
+    Serial.println("Esta mensagem não é para mim.");
+    return;
+  }
+  
 }
